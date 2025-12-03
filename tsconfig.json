@@ -1,0 +1,45 @@
+{
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
+    "baseUrl": "./",
+    "declaration": false,
+    "emitDecoratorMetadata": true,
+    "esModuleInterop": true,
+    "exactOptionalPropertyTypes": true,
+    "experimentalDecorators": true,
+    "incremental": false,
+    "module": "esnext",
+    "outDir": "./dist",
+    "removeComments": true,
+    "sourceMap": true,
+    "strict": true,
+    "strictNullChecks": true,
+    "strictPropertyInitialization": true,
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "noEmit": true,
+    "target": "es5",
+    "typeRoots": ["./node_modules/@types"],
+    "jsx": "react-jsx",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "plugins": [
+      {
+        "transform": "@bitpatty/ts-transformer-log-position",
+        "split": false,
+        "argsToJson": true,
+        "expressions": [
+          "console.log",
+          "console.debug",
+          "console.error",
+          "console.warn",
+          "logger.log",
+          "logger.debug",
+          "logger.error",
+          "logger.warn"
+        ]
+      }
+    ]
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules/**/*"]
+}

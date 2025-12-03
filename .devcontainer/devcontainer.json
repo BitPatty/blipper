@@ -1,0 +1,14 @@
+{
+  "name": "blipper",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:24-trixie",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "bitpatty.trailing-whitespace-trimmer"
+      ]
+    }
+  },
+  "postCreateCommand": "bash -i .devcontainer/post-create.sh"
+}
