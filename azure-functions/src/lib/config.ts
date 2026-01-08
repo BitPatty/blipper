@@ -1,0 +1,26 @@
+const BLIPPER_FRONTEND_BASE_URL = process.env.BLIPPER_FRONTEND_BASE_URL!;
+if (BLIPPER_FRONTEND_BASE_URL == null) throw new Error('BLIPPER_FRONTEND_BASE_URL not set');
+
+const GITHUB_BASE_URL = process.env.GITHUB_BASE_URL!;
+if (GITHUB_BASE_URL == null) throw new Error('GITHUB_BASE_URL not set');
+
+const GITHUB_OAUTH_CLIENT_ID = process.env.GITHUB_OAUTH_CLIENT_ID!;
+if (GITHUB_OAUTH_CLIENT_ID == null) throw new Error('GITHUB_OAUTH_CLIENT_ID not set');
+
+const GITHUB_OAUTH_CLIENT_SECRET = process.env.GITHUB_OAUTH_CLIENT_SECRET!;
+if (GITHUB_OAUTH_CLIENT_SECRET == null) throw new Error('GITHUB_OAUTH_CLIENT_SECRET not set');
+
+const GITHUB_OAUTH_SCOPE = process.env.GITHUB_OAUTH_SCOPE!;
+if (GITHUB_OAUTH_SCOPE == null) throw new Error('GITHUB_OAUTH_SCOPE not set');
+
+const STATE_COOKIE_NAME = process.env.STATE_COOKIE_NAME!;
+if (STATE_COOKIE_NAME == null) throw new Error('STATE_COOKIE_NAME not set');
+
+export {
+  BLIPPER_FRONTEND_BASE_URL,
+  GITHUB_BASE_URL,
+  GITHUB_OAUTH_CLIENT_ID,
+  GITHUB_OAUTH_CLIENT_SECRET,
+  GITHUB_OAUTH_SCOPE,
+  STATE_COOKIE_NAME,
+};

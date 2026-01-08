@@ -1,0 +1,27 @@
+{
+	"name": "Node.js",
+	"image": "mcr.microsoft.com/devcontainers/javascript-node:24-trixie",
+	  "customizations": {
+    "vscode": {
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "terminal.integrated.defaultProfile.osx": "zsh",
+        "terminal.integrated.profiles.osx": {
+          "zsh": {
+            "path": "zsh",
+            "args": ["-l"]
+          }
+        }
+      },
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "eamodio.gitlens",
+        "prettier.prettier-vscode",
+        "mikestead.dotenv",
+        "ms-azuretools.vscode-azurefunctions"
+      ]
+    }
+  },
+  "forwardPorts": [3000],
+  "postCreateCommand": "bash -i .devcontainer/post-create.sh"
+}
