@@ -6,6 +6,7 @@ on:
       - master
     paths:
       - "web/**"
+      - ".github/workflows/**"
 
 permissions:
   contents: write
@@ -28,6 +29,8 @@ jobs:
         run: npm ci
 
       - name: Build web app
+        env:
+          REACT_APP_OAUTH_URL: ${{ vars.REACT_APP_OAUTH_URL }}
         working-directory: web
         run: npm run build
 

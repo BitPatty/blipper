@@ -9,6 +9,7 @@ on:
       - master
     paths:
       - "azure-functions/**"
+      - ".github/workflows/**"
   workflow_dispatch:
 
 env:
