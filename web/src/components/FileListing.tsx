@@ -34,7 +34,7 @@ const FileListing: React.FC<Props> = ({ files, parentDirectoryFilter, onOpenFile
                   <div>{f}</div>
                 </div>
               ) : (
-                <div>{f}</div>
+                <div className="margin-top-1">{f}</div>
               )}
             </div>
           ))}

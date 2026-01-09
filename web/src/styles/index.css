@@ -5,6 +5,25 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  color: white;
+  background-color: rgb(26, 0, 37);
+}
+
+#root {
+  display: flex;
+  justify-content: center;
+}
+
+#root>div {
+  width: 1240px;
+}
+
+header {
+  background: rgb(94, 0, 202)
+}
+
+main {
+  background: rgb(63, 0, 136)
 }
 
 code {
@@ -18,12 +37,28 @@ code {
 
 .flex {
   display: flex;
-  align-items: center;
   gap: 12px
+}
+
+.flex-v-center {
+  align-items: center;
+}
+
+.flex-wrap {
+  flex-wrap: wrap;
 }
 
 .flex-top {
   align-items: start;
+}
+
+.grid {
+  display: grid;
+  gap: 12px
+}
+
+.grid-4 {
+  grid-template-columns: repeat(4, 1fr);
 }
 
 .margin-top-1 {
@@ -33,7 +68,6 @@ code {
 .margin-top-2 {
   margin-top: 16px;
 }
-
 
 .padding-1 {
   padding: 8px;
@@ -59,8 +93,21 @@ code {
   background-color: rgb(255, 158, 158);
 }
 
+.border {
+  border: 1px solid rgb(207, 207, 207);
+}
+
 .border-round {
   border-radius: 5px;
+}
+
+[role="button"] {
+  color: white;
+  cursor: pointer;
+}
+
+[role="button"]:hover {
+  background: rgb(90, 21, 90)
 }
 
 button {

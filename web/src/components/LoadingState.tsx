@@ -6,7 +6,7 @@ type Props = {
 
 const LoadingState: React.FC<Props> = ({ text }) => {
   return (
-    <div className="flex padding-2 fg-dark-blue bg-light-blue border-round">
+    <div className="flex flex-v-center padding-2 fg-dark-blue bg-light-blue border-round">
       <div>
         <LoadingSpinner />
       </div>

@@ -1,14 +1,26 @@
-import React, { useEffect } from 'react';
+import React, { useState } from 'react';
 import LoadingState from '../components/LoadingState';
 
 const AuthenticationForm: React.FC = () => {
-  useEffect(() => {
-    window.location.href = process.env.REACT_APP_OAUTH_URL!;
-  }, []);
+  const [isAuthenticating, setIsAuthentication] = useState<boolean>(false);
+
+  if (isAuthenticating)
+    return (
+      <div>
+        <LoadingState text="Authenticating, please wait..." />
+      </div>
+    );
 
   return (
     <div>
-      <LoadingState text="Authentication, please wait..." />
+      <button
+        onClick={() => {
+          setIsAuthentication(true);
+          window.location.href = process.env.REACT_APP_OAUTH_URL!;
+        }}
+      >
+        Authenticate using GitHub
+      </button>
     </div>
   );
 };

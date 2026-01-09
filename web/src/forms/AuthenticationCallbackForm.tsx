@@ -9,6 +9,7 @@ import {
 } from '../common/github-api-client';
 import ErrorState from '../components/ErrorState';
 import LoadingState from '../components/LoadingState';
+import RepositoryCard from '../components/RepositoryCard';
 
 type Props = {
   onCallbackCompleted: (data: { user: CurrentGitHubUser; selectedRepository: GitHubUserRepositoryListItem }) => void;
@@ -93,34 +94,46 @@ const AuthenticationCallbackForm: React.FC<Props> = ({ onCallbackCompleted }) =>
         </div>
       );
     case 'repository-selection':
+      const previousSelection = activeView.repositories.find(r => r.name === lastSelectedRepository);
+
       return (
         <div>
           {activeView.repositories.length === 0 ? (
             <ErrorState text="No repositories found" />
           ) : (
             <div>
-              <div>Please select your repository:</div>
+              {previousSelection && (
+                <div>
+                  <div>Last used repository:</div>
+                  <div className="margin-top-2">
+                    <RepositoryCard
+                      onClick={() => {
+                        localStorage.setItem('last_repository', previousSelection.name);
+                        onCallbackCompleted({ user: activeView.user, selectedRepository: previousSelection });
+                      }}
+                      owner={activeView.user.login}
+                      name={previousSelection.name}
+                    />
+                  </div>
+                </div>
+              )}
               <div className="margin-top-2">
-                {activeView.repositories
-                  .sort((a, b) =>
-                    a.name === lastSelectedRepository ? -1 : a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1,
-                  )
-                  .map(r => (
-                    <div className="padding-1" key={r.id}>
-                      <div className="flex">
-                        <button
-                          className={r.name === lastSelectedRepository ? 'bold' : ''}
-                          onClick={() => {
-                            localStorage.setItem('last_repository', r.name);
-                            onCallbackCompleted({ user: activeView.user, selectedRepository: r });
-                          }}
-                        >
-                          Select Repository
-                        </button>
-                        <div>{r.full_name}</div>
-                      </div>
+                <div>Please select your repository:</div>
+
+                <div className="margin-top-2 grid grid-4">
+                  {activeView.repositories.map(r => (
+                    <div className="margin-top-2" key={r.id}>
+                      <RepositoryCard
+                        onClick={() => {
+                          localStorage.setItem('last_repository', r.name);
+                          onCallbackCompleted({ user: activeView.user, selectedRepository: r });
+                        }}
+                        owner={activeView.user.login}
+                        name={r.name}
+                      />
                     </div>
                   ))}
+                </div>
               </div>
             </div>
           )}

@@ -1,5 +1,7 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import MarkdownPreview from '@uiw/react-markdown-preview';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
+
 import {
   CommitTree,
   getCommitTree,
@@ -7,6 +9,8 @@ import {
   getRepositoryFile,
   updateRepositoryFile,
 } from '../common/github-api-client';
+
+import { resizeAndStripExifToBase64 } from '../common/image-utils';
 import DirectoryListing from '../components/DirectoryListing';
 import ErrorState from '../components/ErrorState';
 import FileListing from '../components/FileListing';
@@ -32,12 +36,29 @@ type ActiveViewState =
       view: 'load-blip';
       blipsDirectory: string;
       imagesDirectory: string;
+      tree: CommitTree['tree'];
+    }
+  | {
+      imagePath: string;
+      view: 'save-image';
+      blipsDirectory: string;
+      imagesDirectory: string;
+      content: string;
+      sha: string | null;
+      tree: CommitTree['tree'];
+    }
+  | {
+      view: 'save-image-failure';
+      blipsDirectory: string;
+      imagesDirectory: string;
+      tree: CommitTree['tree'];
     }
   | {
       blipPath: string;
       view: 'load-blip-failure';
       blipsDirectory: string;
       imagesDirectory: string;
+      tree: CommitTree['tree'];
     }
   | {
       blipPath: string;
@@ -46,6 +67,7 @@ type ActiveViewState =
       imagesDirectory: string;
       content: string;
       sha: string | null;
+      tree: CommitTree['tree'];
     }
   | {
       blipPath: string;
@@ -54,6 +76,7 @@ type ActiveViewState =
       imagesDirectory: string;
       content: string;
       sha: string | null;
+      tree: CommitTree['tree'];
     }
   | {
       blipPath: string;
@@ -62,6 +85,7 @@ type ActiveViewState =
       imagesDirectory: string;
       content: string;
       sha: string | null;
+      tree: CommitTree['tree'];
     };
 
 const BlipsPage: React.FC = () => {
@@ -74,11 +98,13 @@ const BlipsPage: React.FC = () => {
 
   const [activeView, setActiveView] = useState<ActiveViewState>({
     view: 'loading-repository',
-    blipsDirectory: '/',
-    imagesDirectory: '/',
+    blipsDirectory: localStorage.getItem('blips-directory') ?? '/src/collections/blips',
+    imagesDirectory: localStorage.getItem('images-directory') ?? '/public/img/blips',
   });
+
   const [showDirectorySelector, setShowDirectorySelector] = useState<boolean>(false);
   const [showFiles, setShowFiles] = useState<boolean>(false);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const navigate = useNavigate();
 
@@ -105,16 +131,13 @@ const BlipsPage: React.FC = () => {
 
         const formattedTree = t.data.tree.map(t => ({ ...t, path: `/${t.path}` }));
 
-        const lastBlipsDirectory = localStorage.getItem('blips-directory') ?? '/';
-        const lastImagesDirectory = localStorage.getItem('images-directory') ?? '/';
-
         setActiveView({
           view: 'repository-loaded',
-          blipsDirectory: formattedTree.some(i => i.type === 'tree' && i.path === lastBlipsDirectory)
-            ? lastBlipsDirectory
+          blipsDirectory: formattedTree.some(i => i.type === 'tree' && i.path === activeView.blipsDirectory)
+            ? activeView.blipsDirectory
             : '/',
-          imagesDirectory: formattedTree.some(i => i.type === 'tree' && i.path === lastImagesDirectory)
-            ? lastImagesDirectory
+          imagesDirectory: formattedTree.some(i => i.type === 'tree' && i.path === activeView.imagesDirectory)
+            ? activeView.imagesDirectory
             : '/',
           tree: formattedTree,
         });
@@ -170,6 +193,28 @@ const BlipsPage: React.FC = () => {
     );
   });
 
+  // Save a new / update an existing image
+  useEffect(() => {
+    if (activeView.view !== 'save-image') return;
+    if (user == null || repository == null) {
+      navigate('/');
+      return;
+    }
+
+    updateRepositoryFile(
+      user,
+      repository,
+      activeView.imagePath.replace(/^\//, ''),
+      activeView.content,
+      'upload image',
+      activeView.sha,
+    ).then(r =>
+      setActiveView(
+        r.success ? { ...activeView, view: 'loading-repository' } : { ...activeView, view: 'save-image-failure' },
+      ),
+    );
+  });
+
   switch (activeView.view) {
     case 'loading-repository':
       return (
@@ -182,23 +227,25 @@ const BlipsPage: React.FC = () => {
         <div>
           <div>
             <h2>Configuration</h2>
-            <div>
-              {showDirectorySelector ? (
-                <button onClick={() => setShowDirectorySelector(false)}>- Hide Directory Selection</button>
-              ) : (
-                <button onClick={() => setShowDirectorySelector(true)}>+ Show Directory Selection</button>
-              )}
-            </div>
-            <div className="margin-top-2">
-              {showFiles ? (
-                <button onClick={() => setShowFiles(false)}>- Hide Files</button>
-              ) : (
-                <button onClick={() => setShowFiles(true)}>+ Show Files</button>
-              )}
-            </div>
-            <div className="flex flex-top margin-top-1">
+            <div className="flex flex-top">
               <div>
-                <div className="bold">Selected Blips Path: {activeView.blipsDirectory}</div>
+                {showDirectorySelector ? (
+                  <button onClick={() => setShowDirectorySelector(false)}>- Hide Directory Selection</button>
+                ) : (
+                  <button onClick={() => setShowDirectorySelector(true)}>+ Show Directory Selection</button>
+                )}
+              </div>
+              <div>
+                {showFiles ? (
+                  <button onClick={() => setShowFiles(false)}>- Hide Files</button>
+                ) : (
+                  <button onClick={() => setShowFiles(true)}>+ Show Files</button>
+                )}
+              </div>
+            </div>
+            <div className="flex flex-top margin-top-2">
+              <div>
+                <div className="padding-2 border bold">Selected Blips Path: {activeView.blipsDirectory}</div>
                 {showDirectorySelector && (
                   <div>
                     <DirectoryListing
@@ -220,7 +267,7 @@ const BlipsPage: React.FC = () => {
                 )}
               </div>
               <div>
-                <div className="bold">Selected Images Path: {activeView.imagesDirectory}</div>
+                <div className="padding-2 border bold">Selected Images Path: {activeView.imagesDirectory}</div>
                 {showDirectorySelector && (
                   <div>
                     <DirectoryListing
@@ -280,9 +327,66 @@ const BlipsPage: React.FC = () => {
                       blipsDirectory: activeView.blipsDirectory,
                       imagesDirectory: activeView.imagesDirectory,
                       blipPath: f,
+                      tree: activeView.tree,
                     })
                   }
                   parentDirectoryFilter={activeView.blipsDirectory}
+                  files={activeView.tree.filter(t => t.type === 'blob').map(t => t.path)}
+                />
+              </div>
+            </div>
+          </div>
+          <div className="margin-top-2">
+            <h2>Latest images</h2>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              style={{ display: 'none' }}
+              onChange={e => {
+                const file = e.target.files?.[0];
+                e.currentTarget.value = '';
+
+                if (!file) return;
+
+                const today = new Date();
+                const pathPrefix = `${activeView.imagesDirectory}/${today.getFullYear()}${(today.getMonth() + 1)
+                  .toString()
+                  .padStart(2, '0')}${today.getDate().toString().padStart(2, '0')}`;
+
+                const existingImages = activeView.tree.filter(t => t.type === 'blob' && t.path.startsWith(pathPrefix));
+
+                resizeAndStripExifToBase64(file, 1000, 0.9)
+                  .then(b => {
+                    const imagePath = `${pathPrefix}_${(existingImages.length + 1).toString().padStart(2, '0')}.${b.ext}`;
+
+                    setActiveView({
+                      ...activeView,
+                      view: 'save-image',
+                      imagePath,
+                      content: b.base64,
+                      sha: null,
+                    });
+                  })
+                  .catch(() =>
+                    setActiveView({
+                      ...activeView,
+                      view: 'save-image-failure',
+                    }),
+                  );
+              }}
+            />
+
+            <div className="margin-top-2">
+              <button onClick={() => fileInputRef.current?.click()}>Upload image</button>
+            </div>
+
+            <div className="margin-top-2">
+              <div>
+                <FileListing
+                  reverseSort
+                  limit={5}
+                  parentDirectoryFilter={activeView.imagesDirectory}
                   files={activeView.tree.filter(t => t.type === 'blob').map(t => t.path)}
                 />
               </div>
@@ -302,12 +406,27 @@ const BlipsPage: React.FC = () => {
           <LoadingState text="Loading blip..." />
         </div>
       );
+    case 'save-image':
+      return (
+        <div>
+          <LoadingState text="Uploading image..." />
+        </div>
+      );
+    case 'save-image-failure':
+      return (
+        <div>
+          <ErrorState text="Could not upload image" />
+        </div>
+      );
     case 'edit-blip':
     case 'save-blip':
     case 'save-blip-failure':
       return (
         <div>
           <div>
+            <div>
+              <h2>Modify Blip</h2>
+            </div>
             <div>
               <div>
                 <label htmlFor="blippath">Blip Path</label>
@@ -355,6 +474,25 @@ const BlipsPage: React.FC = () => {
                 <ErrorState text="Failed to save blip" />
               </div>
             )}
+          </div>
+          <div className="margin-top-2">
+            <h3>Preview</h3>
+          </div>
+          <div className="margin-top-2">
+            <MarkdownPreview className="padding-2" source={activeView.content.replace(/---[\s\S]*?---/, '').trim()} />
+          </div>
+          <div className="margin-top-2">
+            <h3>Latest Images</h3>
+          </div>
+          <div>
+            <div className="margin-top-2">
+              <FileListing
+                reverseSort
+                limit={5}
+                parentDirectoryFilter={activeView.imagesDirectory}
+                files={activeView.tree.filter(t => t.type === 'blob').map(t => t.path)}
+              />
+            </div>
           </div>
         </div>
       );

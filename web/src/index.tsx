@@ -12,20 +12,21 @@ const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement)
 
 const Main: React.FC = () => {
   return (
-    <main>
-      <BrowserRouter>
-        <Routes>
-          <Route path="" element={<HomePage />} />
-          <Route path="/auth-callback" element={<AuthenticationCallbackPage />} />
-          <Route path="/blips" element={<BlipsPage />} />
-        </Routes>
-      </BrowserRouter>
-    </main>
+    <div>
+      <header className="padding-2">
+        <h1>Blipper</h1>
+      </header>
+      <main className="padding-2">
+        <BrowserRouter>
+          <Routes>
+            <Route path="" element={<HomePage />} />
+            <Route path="/auth-callback" element={<AuthenticationCallbackPage />} />
+            <Route path="/blips" element={<BlipsPage />} />
+          </Routes>
+        </BrowserRouter>
+      </main>
+    </div>
   );
 };
 
-root.render(
-  <div className="padding-2">
-    <Main />
-  </div>,
-);
+root.render(<Main />);
