@@ -1,9 +1,7 @@
 const arrayBufferToBase64 = (buffer: ArrayBuffer): string => {
   const bytes = new Uint8Array(buffer);
   let binary = '';
-
   for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
-
   return btoa(binary);
 };
 
@@ -76,7 +74,7 @@ const resizeAndStripExifToBase64 = async (
   const dstW = Math.max(1, Math.round(srcW * scale));
   const dstH = Math.max(1, Math.round(srcH * scale));
 
-  // Draw into canvas (this strips EXIF when we re-encode)
+  // Draw into canvas / strip exif
   const canvas = document.createElement('canvas');
   canvas.width = dstW;
   canvas.height = dstH;
