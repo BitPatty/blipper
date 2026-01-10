@@ -308,7 +308,7 @@ const BlipsPage: React.FC = () => {
                     ...activeView,
                     view: 'edit-blip',
                     blipPath,
-                    content: `---\npubDate: ${new Date().toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })}\n---\n`,
+                    content: `---\nformatVersion: 2\npubDate: ${new Date().toISOString()}\n---\n`,
                     sha: null,
                   });
                 }}
